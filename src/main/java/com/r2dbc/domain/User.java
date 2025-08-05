@@ -1,4 +1,4 @@
-package com.r2dbc;
+package com.r2dbc.domain;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;

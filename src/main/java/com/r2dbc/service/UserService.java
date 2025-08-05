@@ -1,5 +1,7 @@
-package com.r2dbc;
+package com.r2dbc.service;
 
+import com.r2dbc.domain.User;
+import com.r2dbc.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
