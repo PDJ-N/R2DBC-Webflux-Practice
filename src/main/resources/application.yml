@@ -1,0 +1,16 @@
+spring:
+  r2dbc:
+    url: r2dbc:mysql://localhost:3306/webflux
+    username: root
+    password: letmein
+    pool:
+      enabled: true # 커넥션 풀 활성화
+
+  datasource: # 선택 (Flyway나 초기 schema.sql 실행용)
+    url: jdbc:mysql://localhost:3306/webflux
+    username: root
+    password: letmein
+
+  sql:
+    init:
+      mode: always
