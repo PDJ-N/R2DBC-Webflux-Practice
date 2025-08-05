@@ -1,7 +1,7 @@
 package com.r2dbc;
 
-import com.r2dbc.domain.User;
-import com.r2dbc.repository.UserRepository;
+import com.r2dbc.user.domain.User;
+import com.r2dbc.user.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

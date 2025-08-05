@@ -1,7 +1,7 @@
-package com.r2dbc.controller;
+package com.r2dbc.user.controller;
 
-import com.r2dbc.service.UserService;
-import com.r2dbc.domain.User;
+import com.r2dbc.user.service.UserService;
+import com.r2dbc.user.domain.User;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
