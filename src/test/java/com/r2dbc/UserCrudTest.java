@@ -1,6 +1,7 @@
 package com.r2dbc;
 
 import com.r2dbc.user.domain.User;
+import com.r2dbc.user.dto.request.UserCreateRequest;
 import com.r2dbc.user.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,7 +31,7 @@ public class UserCrudTest {
 
     @Test
     void testCreateAndGetUser() {
-        User newUser = new User(null, "홍길동", "hong@example.com");
+        User newUser = User.toEntity(new UserCreateRequest("홍길동", "hong@example.com"));
 
         // 1. 사용자 등록
         webTestClient.post()

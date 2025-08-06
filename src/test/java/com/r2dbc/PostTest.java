@@ -2,10 +2,11 @@ package com.r2dbc;
 
 import com.r2dbc.post.domain.Post;
 import com.r2dbc.post.dto.reponse.UserWithPostsResponse;
+import com.r2dbc.post.dto.request.PostCreateRequest;
 import com.r2dbc.post.repository.PostRepository;
 import com.r2dbc.post.service.PostService;
 import com.r2dbc.user.domain.User;
-import com.r2dbc.user.dto.UserCreateRequest;
+import com.r2dbc.user.dto.request.UserCreateRequest;
 import com.r2dbc.user.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -42,8 +43,8 @@ public class PostTest {
         String testName = UUID.randomUUID().toString();
 
         User user = User.toEntity(new UserCreateRequest(testName, UUID.randomUUID().toString()));
-        Post post1 = new Post(1L, "첫 글", userId);
-        Post post2 = new Post(2L, "두 번째 글", userId);
+        Post post1 = Post.toEntity(1L, new PostCreateRequest("첫 번째 글", "내용 1"));
+        Post post2 = Post.toEntity(2L, new PostCreateRequest("두 번째 글", "내용 2"));
 
         when(userRepository.findById(userId)).thenReturn(Mono.just(user));
         when(postRepository.findByUserId(userId)).thenReturn(Flux.just(post1, post2));
