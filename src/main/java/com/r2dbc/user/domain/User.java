@@ -1,57 +1,32 @@
 package com.r2dbc.user.domain;
 
+import com.r2dbc.user.dto.UserCreateRequest;
+import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
 
+@Getter
+@Setter
 @Table("users")
+@NoArgsConstructor
+@ToString
 public class User {
-
     @Id
     private Long id;
     private String name;
     private String email;
 
-    @Override
-    public String toString() {
-        return "User{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", email='" + email + '\'' +
-                '}';
-    }
-
-    // 생성자
-    public User() {
-    }
-
-    public User(Long id, String name, String email) {
+    @Builder
+    private User(Long id, String name, String email) {
         this.id = id;
         this.name = name;
         this.email = email;
     }
 
-    // 게터/세터
-    public Long getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
+    public static User toEntity(UserCreateRequest request){
+        return User.builder()
+                .name(request.name())
+                .email(request.email())
+                .build();
     }
 }
