@@ -1,4 +1,4 @@
-package com.r2dbc.user.dto;
+package com.r2dbc.user.dto.request;
 
 public record UserCreateRequest(String name, String email) {
 
