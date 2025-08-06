@@ -1,3 +1,6 @@
+DROP TABLE posts;
+DROP TABLE users;
+
 -- user 테이블
 CREATE TABLE IF NOT EXISTS users
 (
@@ -11,6 +14,7 @@ CREATE TABLE IF NOT EXISTS posts
 (
     id      BIGINT AUTO_INCREMENT PRIMARY KEY,
     title   VARCHAR(255) NOT NULL,
+    content VARCHAR(255) NOT NULL,
     user_id BIGINT       NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users (id)
 );
