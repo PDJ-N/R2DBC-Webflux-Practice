@@ -1,6 +1,6 @@
 package com.r2dbc.user.domain;
 
-import com.r2dbc.user.dto.UserCreateRequest;
+import com.r2dbc.user.dto.request.UserCreateRequest;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
