@@ -1,6 +1,7 @@
 package com.r2dbc.controller;
 
-import com.r2dbc.user.dto.UserCreateRequest;
+import com.r2dbc.user.dto.request.UserCreateRequest;
+import com.r2dbc.user.dto.request.UserUpdateRequest;
 import com.r2dbc.user.service.UserService;
 import com.r2dbc.user.domain.User;
 import io.swagger.v3.oas.annotations.Operation;
@@ -17,7 +18,7 @@ import reactor.core.publisher.Mono;
 public class UserController {
     private final UserService userService;
 
-    @Operation
+    @Operation(summary = "사용자 조회")
     @GetMapping("/{userId}")
     public Mono<User> read(@PathVariable Long userId) {
         return userService.read(userId);
@@ -32,7 +33,6 @@ public class UserController {
     @Operation(summary = "사용자 생성")
     @PostMapping
     public Mono<User> create(@RequestBody UserCreateRequest user) {
-
         return userService.createUser(user);
     }
 
@@ -44,14 +44,14 @@ public class UserController {
 
     @Operation(summary = "R2DBCTemplate를 사용하여 사용자 수정")
     @PatchMapping("/template/{userId}")
-    public Mono<Long> updateUserByTemplate(@PathVariable Long userId, @RequestParam String name) {
-        return userService.templateUpdate(userId, name);
+    public Mono<Long> updateUserByTemplate(@PathVariable Long userId, @RequestBody UserUpdateRequest request) {
+        return userService.templateUpdate(userId, request);
     }
 
     @Operation(summary = "Repository를 사용하여 사용자 수정")
     @PatchMapping("/repository/{userId}")
-    public Mono<User> updateUserByRepository(@PathVariable Long userId, @RequestParam String name) {
-        return userService.repositoryUpdate(userId, name);
+    public Mono<User> updateUserByRepository(@PathVariable Long userId, @RequestBody UserUpdateRequest request) {
+        return userService.repositoryUpdate(userId, request);
     }
 
     @Operation(summary = "Repository를 사용하여 사용자 삭제")
