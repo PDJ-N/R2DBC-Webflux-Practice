@@ -33,11 +33,11 @@ public class UserController {
     @Operation(summary = "사용자 생성")
     @PostMapping
     public Mono<User> create(@RequestBody UserCreateRequest user) {
-        return userService.createUser(user);
+        return userService.create(user);
     }
 
     @Operation(summary = "이메일로 사용자 조회")
-    @GetMapping("/{email}")
+    @GetMapping("/email/{email}")
     public Mono<User> readByEmail(@PathVariable String email) {
         return userService.getUserByEmail(email);
     }
@@ -45,19 +45,19 @@ public class UserController {
     @Operation(summary = "R2DBCTemplate를 사용하여 사용자 수정")
     @PatchMapping("/template/{userId}")
     public Mono<Long> updateUserByTemplate(@PathVariable Long userId, @RequestBody UserUpdateRequest request) {
-        return userService.templateUpdate(userId, request);
+        return userService.updateUsingTemplate(userId, request);
     }
 
     @Operation(summary = "Repository를 사용하여 사용자 수정")
     @PatchMapping("/repository/{userId}")
     public Mono<User> updateUserByRepository(@PathVariable Long userId, @RequestBody UserUpdateRequest request) {
-        return userService.repositoryUpdate(userId, request);
+        return userService.updateUsingRepository(userId, request);
     }
 
     @Operation(summary = "Repository를 사용하여 사용자 삭제")
     @DeleteMapping("/repository/{userId}")
     public Mono<Void> deleteByRepository(@PathVariable Long userId) {
-        return userService.delete(userId);
+        return userService.deleteUsingRepository(userId);
     }
 
     @Operation(summary = "R2DBCTemplate를 사용하여 사용자 삭제")
