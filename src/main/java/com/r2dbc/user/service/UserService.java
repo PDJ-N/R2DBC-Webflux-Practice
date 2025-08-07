@@ -111,8 +111,8 @@ public class UserService {
                         String.format("사용자(%d)를 찾지 못했습니다", id)
                 )))
                 .flatMap(user -> {
-                    user.setName(request.name());
-                    user.setEmail(request.email());
+                    user.setName(request.name() == null ? "홍길동" : request.name());
+                    user.setEmail(request.email() == null ? "example@example.com" : request.email());
                     return userRepository.save(user);
                 });
     }
