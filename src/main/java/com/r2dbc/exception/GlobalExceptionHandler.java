@@ -1,7 +1,9 @@
 package com.r2dbc.exception;
 
 import com.r2dbc.exception.dto.ErrorResponseDto;
+import io.r2dbc.spi.R2dbcException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataAccessException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -9,7 +11,7 @@ import reactor.core.publisher.Mono;
 
 @Slf4j
 @ControllerAdvice
-public class GlobalExceptionHandler  {
+public class GlobalExceptionHandler {
 
     /*
      * - 예기치 못하게 발생하는 예외만 처리하도록 함.
@@ -17,17 +19,26 @@ public class GlobalExceptionHandler  {
      * - 복구 불가능한 예외를 처리하도록 함.
      * */
     @ExceptionHandler(RuntimeException.class)
-    public Mono<ResponseEntity<ErrorResponseDto>> runtimeExceptionHandler(RuntimeException e) {
+    public Mono<ResponseEntity<ErrorResponseDto>> handleRuntimeException(RuntimeException e) {
 
-        log.error("[Error] BusinessException -> {}", e.getMessage());
+        log.error("[Error] RuntimeException -> {}", e.getMessage());
 
         return Mono.just(ErrorResponseDto.of(e));
     }
 
     /**
+     * 데이터베이스 연결 중 발생하는 예외는 따로 처리하도록 함.
+     * */
+    @ExceptionHandler({DataAccessException.class, R2dbcException.class})
+    public Mono<ResponseEntity<ErrorResponseDto>> handleDataAccessException(Exception e) {
+        log.error("[Error] DataAccessException -> {}", e.getMessage());
+        return Mono.just(ErrorResponseDto.of(new RuntimeException("데이터베이스 오류가 발생했습니다.")));
+    }
+
+    /**
      * 애플리케이션 실행 중 문제가 발생했을 때 예외를 생성하는데,
      * 그러한 예외를 처리할 수 있도록 함.
-     * */
+     */
     @ExceptionHandler(CustomException.class)
     public Mono<ResponseEntity<ErrorResponseDto>> handleCustomException(CustomException e) {
         log.error("[Error] CustomException -> {}", e.getMessage());
