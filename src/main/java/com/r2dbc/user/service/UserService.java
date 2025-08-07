@@ -35,7 +35,7 @@ public class UserService {
      * 사용자 조회를 위한 메소드
      *
      * @param id 조회할 사용자의 PK
-     * */
+     */
     public Mono<User> read(Long id) {
         return userRepository.findById(id)
                 .switchIfEmpty(
@@ -48,19 +48,15 @@ public class UserService {
 
     /**
      * 모든 사용자를 조회하기 위한 메소드
-     * */
-    public Flux<User> getAllUsers() {
-        return userRepository.findAll().switchIfEmpty(
-                Mono.error(new CustomException(
-                        ErrorMessage.NOT_FOUND_USER,
-                        "어떤 사용자도 등록되지 않았습니다."
-                ))
-        );
+     */
+    public Flux<User> readAll() {
+        return userRepository.findAll()
+                .doOnComplete(() -> log.debug("사용자 조회 완료"));
     }
 
     /**
      * 이메일로 사용자를 조회하기 위한 메소드
-     * */
+     */
     public Mono<User> getUserByEmail(String email) {
         return userRepository.findByEmail(email).switchIfEmpty(
                 Mono.error(new CustomException(
@@ -123,7 +119,7 @@ public class UserService {
 
     /**
      * ID로 사용자를 삭제하기 위한 메소드
-     * */
+     */
     public Mono<Void> deleteUsingRepository(Long id) {
         return userRepository.findById(id)
                 .switchIfEmpty(Mono.error(new CustomException(

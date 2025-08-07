@@ -27,7 +27,7 @@ public class UserController {
     @Operation(summary = "사용자 전부 조회")
     @GetMapping("/all")
     public Flux<User> readAll() {
-        return userService.getAllUsers();
+        return userService.readAll();
     }
 
     @Operation(summary = "사용자 생성")
