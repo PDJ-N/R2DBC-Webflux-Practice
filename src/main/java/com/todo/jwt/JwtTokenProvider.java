@@ -1,9 +1,8 @@
 package com.todo.jwt;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtException;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import com.todo.exception.CustomException;
+import com.todo.exception.dto.ErrorMessage;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
@@ -26,12 +25,25 @@ public class JwtTokenProvider {
     private long expirationTime;
 
     private SecretKey secret;
+    private JwtParser parser;
 
     @PostConstruct
     public void init() {
         // 시크릿 키를 Base64로 인코딩한 후 HMAC SHA 키로 변환
-        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
+        final byte[] keyBytes;
+        try {
+            keyBytes = Decoders.BASE64.decode(secretKey);
+        } catch (IllegalArgumentException e) {
+            throw new CustomException(ErrorMessage.INTERNAL_SERVER_ERROR, "jwt.secret-key는 Base64 인코딩된 문자열이어야 합니다.");
+        }
+        if (keyBytes.length < 32) { // 256bit
+            throw new CustomException(ErrorMessage.INTERNAL_SERVER_ERROR, "jwt.secret-key는 HS256에 적합한 최소 256비트 이상이어야 합니다.");
+        }
         this.secret = Keys.hmacShaKeyFor(keyBytes);
+        this.parser = Jwts.parserBuilder()
+                .setSigningKey(secret)
+                .setAllowedClockSkewSeconds(30) // 시계 오차 허용
+                .build();
     }
 
     // JWT 토큰 생성
