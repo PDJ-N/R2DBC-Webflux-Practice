@@ -53,6 +53,7 @@ public class JwtAuthenticationFilter implements WebFilter {
                     null,
                     authorities
             );
+            log.debug("JWT authentication for user: {}, authorities: {}", username, authorities);
 
             // SecurityContext에 인증 정보 저장
             return chain.filter(exchange).contextWrite(
