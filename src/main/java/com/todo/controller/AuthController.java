@@ -1,9 +1,12 @@
 package com.todo.controller;
 
+import com.todo.exception.CustomException;
+import com.todo.exception.dto.ErrorMessage;
 import com.todo.jwt.JwtTokenProvider;
 import com.todo.user.dto.request.UserLoginRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -28,22 +31,26 @@ public class AuthController {
     public Mono<Map<String, String>> login(@RequestBody Mono<UserLoginRequest> userLoginDto) {
         return userLoginDto.flatMap(dto -> {
             UsernamePasswordAuthenticationToken authenticationToken =
-                new UsernamePasswordAuthenticationToken(dto.username(), dto.password());
-            
+                    new UsernamePasswordAuthenticationToken(dto.username(), dto.password());
+
             return authenticationManager.authenticate(authenticationToken)
-                .map(tokenProvider::generateToken)
-                .map(jwt -> {
-                    Map<String, String> response = new HashMap<>();
-                    response.put("token", jwt);
-                    return response;
-                });
+                    .map(tokenProvider::generateToken)
+                    .map(jwt -> Map.of("token", jwt, "tokenType", "Bearer"))
+                    .onErrorResume(
+                            BadCredentialsException.class,
+                            ex -> Mono.error(new CustomException(ErrorMessage.UNAUTHORIZED, "올바르지 않은 로그인입니다"))
+                    );
         });
     }
 
     @GetMapping("/me")
-    public Mono<String> getCurrentUserRole(@AuthenticationPrincipal Mono<UserDetails> userDetailsMono) {
+    public Mono<Map<String, Object>> getCurrentUserRole(@AuthenticationPrincipal Mono<UserDetails> userDetailsMono) {
         return userDetailsMono
-                .map(userDetails -> "Current user's roles: " + userDetails.getAuthorities());
+                .switchIfEmpty(Mono.error(new CustomException(ErrorMessage.UNAUTHORIZED, "올바르지 않은 인증입니다.")))
+                .map(userDetails -> userDetails.getAuthorities().stream()
+                        .map(org.springframework.security.core.GrantedAuthority::getAuthority)
+                        .toList())
+                .map(roles -> Map.of("roles", roles));
     }
 
     @GetMapping("/me2")
