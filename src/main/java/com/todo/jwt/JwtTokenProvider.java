@@ -68,9 +68,7 @@ public class JwtTokenProvider {
 
     // 토큰에서 사용자 이름 추출
     public String getUsernameFromToken(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(secret)
-                .build()
+        return parser
                 .parseClaimsJws(token)
                 .getBody()
                 .getSubject();
@@ -78,14 +76,10 @@ public class JwtTokenProvider {
 
     // 권한 가져오기
     public List<String> getRolesFromToken(String token) {
-        Claims claims = Jwts.parserBuilder()
-                .setSigningKey(secret)
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
+        Claims claims = parser.parseClaimsJws(token).getBody();
 
-        // claims에서 "roles"라는 키의 값을 List<String>으로 추출
-        return (List<String>) claims.get("roles", List.class);
+        List<?> roles = claims.get("roles", List.class);
+        return roles == null ? List.of() : roles.stream().map(String::valueOf).toList();
     }
 
     // 토큰 유효성 검증
