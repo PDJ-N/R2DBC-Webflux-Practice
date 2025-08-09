@@ -13,12 +13,16 @@ import org.springframework.data.relational.core.mapping.Table;
 public class User {
     @Id
     private Long id;
+    private String username;
+    private String password;
     private String name;
     private String email;
+    private String roles = "USER";
 
     @Builder
-    private User(Long id, String name, String email) {
-        this.id = id;
+    public User(String username, String password, String name, String email) {
+        this.username = username;
+        this.password = password;
         this.name = name;
         this.email = email;
     }
@@ -27,6 +31,8 @@ public class User {
         return User.builder()
                 .name(request.name())
                 .email(request.email())
+                .password(request.password())
+                .username(request.username())
                 .build();
     }
 }

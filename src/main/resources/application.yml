@@ -24,3 +24,7 @@ springdoc:
     operations-sorter: alpha
   cache:
     disabled: true
+
+jwt:
+  secret-key: dGhpcy1pcy1hLXNlY3JldC1rZXktZm9yLWp3dC10b2tlbi1hbmQtd2ViZmx1eA==
+  expiration-time: 3600000

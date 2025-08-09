@@ -12,6 +12,7 @@ import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
 import org.springframework.data.relational.core.query.Criteria;
 import org.springframework.data.relational.core.query.Query;
 import org.springframework.data.relational.core.query.Update;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -23,12 +24,15 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final R2dbcEntityTemplate template;
+    private final PasswordEncoder passwordEncoder;
 
     /**
      * 사용자 생성을 위한 메소드
      */
     public Mono<User> create(UserCreateRequest user) {
-        return userRepository.save(User.toEntity(user));
+        User entity = User.toEntity(user);
+        entity.setPassword(passwordEncoder.encode(entity.getPassword()));
+        return userRepository.save(entity);
     }
 
     /**
