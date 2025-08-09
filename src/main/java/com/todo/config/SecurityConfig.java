@@ -14,6 +14,7 @@ import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.server.SecurityWebFilterChain;
+import org.springframework.security.web.server.context.NoOpServerSecurityContextRepository;
 
 @Configuration
 @EnableWebFluxSecurity
@@ -39,12 +40,11 @@ public class SecurityConfig {
                         .pathMatchers("/api/auth/login", "/users/**", "/posts/**").permitAll()
                         .anyExchange().authenticated()
                 )
+                .securityContextRepository(NoOpServerSecurityContextRepository.getInstance())
                 .addFilterAt(new JwtAuthenticationFilter(tokenProvider), SecurityWebFiltersOrder.AUTHENTICATION)
                 .build();
     }
 
-    // (예시) 사용자 정보가 메모리에 있는 경우의 ReactiveAuthenticationManager 빈
-    // ReactiveAuthenticationManager 설정
     @Bean
     public ReactiveAuthenticationManager authenticationManager() {
         UserDetailsRepositoryReactiveAuthenticationManager authenticationManager =
