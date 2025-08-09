@@ -42,7 +42,7 @@ public class PostTest {
         Long userId = 1L;
         String testName = UUID.randomUUID().toString();
 
-        User user = User.toEntity(new UserCreateRequest(testName, UUID.randomUUID().toString()));
+        User user = User.toEntity(new UserCreateRequest("username", "password", testName, UUID.randomUUID().toString()));
         Post post1 = Post.toEntity(1L, new PostCreateRequest("첫 번째 글", "내용 1"));
         Post post2 = Post.toEntity(2L, new PostCreateRequest("두 번째 글", "내용 2"));
 

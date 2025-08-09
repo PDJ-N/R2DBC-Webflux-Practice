@@ -31,7 +31,7 @@ public class UserCrudTest {
 
     @Test
     void testCreateAndGetUser() {
-        User newUser = User.toEntity(new UserCreateRequest("홍길동", "hong@example.com"));
+        User newUser = User.toEntity(new UserCreateRequest("username", "password","홍길동", "hong@example.com"));
 
         // 1. 사용자 등록
         webTestClient.post()
