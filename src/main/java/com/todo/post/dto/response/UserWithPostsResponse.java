@@ -1,4 +1,4 @@
-package com.todo.post.dto.reponse;
+package com.todo.post.dto.response;
 
 import com.todo.post.domain.Post;
 import com.todo.user.domain.User;

@@ -1,7 +1,7 @@
 package com.todo;
 
 import com.todo.post.domain.Post;
-import com.todo.post.dto.reponse.UserWithPostsResponse;
+import com.todo.post.dto.response.UserWithPostsResponse;
 import com.todo.post.dto.request.PostCreateRequest;
 import com.todo.post.repository.PostRepository;
 import com.todo.post.service.PostService;
