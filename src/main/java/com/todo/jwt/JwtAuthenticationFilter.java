@@ -34,10 +34,13 @@ public class JwtAuthenticationFilter implements WebFilter {
             String username = tokenProvider.getUsernameFromToken(token);
 
             List<String> roles = tokenProvider.getRolesFromToken(token); // 1. roles 클레임 추출
+            if(roles == null) roles = List.of();
+
             List<GrantedAuthority> authorities = roles.stream()
+                    .map(String::trim)
+                    .filter(s -> !s.isEmpty())
                     .map(SimpleGrantedAuthority::new)
                     .collect(Collectors.toList());
-            authorities.forEach(System.out::println);
 
             UserDetails userDetails = new User(
                     username, // username
