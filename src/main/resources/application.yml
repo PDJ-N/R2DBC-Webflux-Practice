@@ -6,14 +6,19 @@ spring:
     pool:
       enabled: true # 커넥션 풀 활성화
 
-  datasource: # 선택 (Flyway나 초기 schema.sql 실행용)
-    url: jdbc:mysql://localhost:3306/webflux
-    username: root
-    password: letmein
-
   sql:
     init:
       mode: always
+
+  flyway:
+    url: jdbc:mysql://localhost:3306/webflux
+    locations: classpath:db/migration
+    enabled: true
+    user: root
+    password: letmein
+    baseline-on-migrate: true
+    clean-disabled: false # flyway.cleanDisabled 속성 비활성화
+
 
 springdoc:
   default-consumes-media-type: application/json;charset=UTF-8
@@ -24,6 +29,8 @@ springdoc:
     operations-sorter: alpha
   cache:
     disabled: true
+
+
 
 jwt:
   secret-key: dGhpcy1pcy1hLXNlY3JldC1rZXktZm9yLWp3dC10b2tlbi1hbmQtd2ViZmx1eA==
