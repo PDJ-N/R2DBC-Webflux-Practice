@@ -15,6 +15,9 @@
 - R2DBC MySQL Driver
 - WebTestClient (통합 테스트용)
 - Gradle
+- Flyway
+- Spring Security + JWT
+- Gemini(2.5 flash) AI 프롬포트
 
 ---
 
