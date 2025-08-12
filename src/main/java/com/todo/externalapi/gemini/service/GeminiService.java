@@ -25,10 +25,10 @@ public class GeminiService {
         this.geminiApiKey = geminiApiKey;
     }
 
-    public Mono<String> getContents(String prompt) {
+    public Mono<String> getContents(String message) {
 
         // ChatRequest 객체 생성
-        ChatRequest request = new ChatRequest(prompt);
+        ChatRequest request = new ChatRequest(message);
 
         // WebClient를 사용한 비동기 요청
         return geminiWebClient.post()
