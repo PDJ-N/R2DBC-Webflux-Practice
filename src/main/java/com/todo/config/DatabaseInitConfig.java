@@ -23,7 +23,7 @@ public class DatabaseInitConfig {
      * */
     @Bean
     @Order(2)
-    public ApplicationRunner init() {
+    public ApplicationRunner databaseInit() {
         return args -> {
             userRepository.save(User.toEntity(new UserCreateRequest("test", "test", "홍길동", "hong@example.com")));
             postRepository.save(Post.toEntity(1L, new PostCreateRequest("제목1", "내용1")));

@@ -17,7 +17,7 @@ public class FlywayInitConfig {
 
     @Bean
     @Order(1)   // 제일 먼저 실행되도록 설정
-    public ApplicationRunner init(Flyway flyway) {
+    public ApplicationRunner flywayInit(Flyway flyway) {
         return args -> {
             // 모든 테이블 드롭
             flyway.clean();
