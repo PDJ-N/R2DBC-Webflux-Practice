@@ -7,30 +7,36 @@ import com.todo.user.domain.User;
 import com.todo.user.dto.request.UserCreateRequest;
 import com.todo.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import reactor.core.publisher.Flux;
 
+@Slf4j
 @Configuration
 @RequiredArgsConstructor
 public class DatabaseInitConfig {
     private final UserRepository userRepository;
     private final PostRepository postRepository;
 
-    /**
-     * 테스트용 데이터를 만드는 ApplicationRunner. 1L로 둔 이유는 자동으로 생성되는 PK는 처음에는 무조건 1이기 때문이다.
-     */
     @Bean
     @Order(2)
     public ApplicationRunner databaseInit() {
         return args -> {
-            userRepository.save(User.toEntity(new UserCreateRequest("test", "test", "홍길동", "hong@example.com"))).subscribe(
-                    saved -> {
-                        postRepository.save(Post.toEntity(saved.getId(), new PostCreateRequest("제목1", "내용1"))).subscribe();
-                        postRepository.save(Post.toEntity(saved.getId(), new PostCreateRequest("제목2", "내용2"))).subscribe();
-                    }
-            );
+            userRepository.save(User.toEntity(new UserCreateRequest("test", "test", "홍길동", "hong@example.com")))
+                    .flatMap(saved ->
+                            postRepository.saveAll(
+                                    Flux.just(
+                                            Post.toEntity(saved.getId(), new PostCreateRequest("제목1", "내용1")),
+                                            Post.toEntity(saved.getId(), new PostCreateRequest("제목2", "내용2"))
+                                    )
+                            ).then()
+                    )
+                    .doOnSuccess(v -> log.info("개발용 시드 데이터 삽입 완료"))
+                    .doOnError(e -> log.error("개발용 시드 데이터 삽입 실패", e))
+                    .block(); // 개발 초기화 목적이므로 완료까지 대기
         };
     }
 }
