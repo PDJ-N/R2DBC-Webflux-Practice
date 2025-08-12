@@ -32,7 +32,6 @@ public class GeminiService {
 
         // WebClient를 사용한 비동기 요청
         return geminiWebClient.post()
-                .uri(apiUrl + "?key=" + geminiApiKey)
                 .body(Mono.just(request), ChatRequest.class)
                 .retrieve()
                 .bodyToMono(ChatResponse.class)
