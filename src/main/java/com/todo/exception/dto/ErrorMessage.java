@@ -20,6 +20,8 @@ public enum ErrorMessage {
 
     // GEMINI
     GEMINI_INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Gemini에서 예기치 못한 오류가 발생했습니다."),
+    GEMINI_UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "Gemini에 인증이 실패했습니다."),
+    GEMINI_BAD_REQUEST(HttpStatus.BAD_REQUEST, "Gemini에게 유효한 요청이 아닙니다"),
     ;
 
     private final HttpStatus status;
