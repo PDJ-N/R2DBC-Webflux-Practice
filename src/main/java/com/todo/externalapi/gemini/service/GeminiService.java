@@ -48,8 +48,11 @@ public class GeminiService {
                 )
                 .bodyToMono(ChatResponse.class)
                 .flatMap(this::validateResponse)
-                .doOnError(error -> log.error("제미나이에 요청을 보내는데 오류가 발생했습니다.\n ---------- ERROR MESSAGE FROM GEMINI -----------\n {}", error))
-                .onErrorMap(error -> new CustomException(ErrorMessage.GEMINI_INTERNAL_SERVER_ERROR, error.getMessage()));
+                .doOnError(error -> log.error("제미나이에 요청을 보내는데 오류가 발생했습니다. {}", error.getMessage()))
+                .onErrorMap(error -> {
+                    if (error instanceof CustomException) return error;
+                    return new CustomException(ErrorMessage.GEMINI_INTERNAL_SERVER_ERROR, error.getMessage());
+                });
     }
 
     private Mono<String> validateResponse(ChatResponse response) {
