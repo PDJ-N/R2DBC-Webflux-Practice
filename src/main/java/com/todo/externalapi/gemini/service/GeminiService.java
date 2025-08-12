@@ -36,7 +36,16 @@ public class GeminiService {
                 .body(Mono.just(request), ChatRequest.class)
                 .retrieve()
                 .bodyToMono(ChatResponse.class)
-                .map(response -> response.getCandidates().get(0).getContent().getParts().get(0).getText())
+                .map(response ->
+                        response.getCandidates().stream()
+                                .findFirst()
+                                .map(candidate -> candidate.getContent().getParts().stream()
+                                        .findFirst()
+                                        .map(ChatResponse.Parts::getText)
+                                        .orElse("응답이 비어있습니다.")
+                                )
+                                .orElse("후보 응답이 없습니다.")
+                )
                 .doOnError(error -> log.error("제미나이에 요청을 보내는데 오류가 발생했습니다.\n ---------- ERROR MESSAGE FROM GEMINI -----------\n {}", error))
                 .onErrorMap(error -> new CustomException(ErrorMessage.GEMINI_INTERNAL_SERVER_ERROR, error.getMessage()));
     }
