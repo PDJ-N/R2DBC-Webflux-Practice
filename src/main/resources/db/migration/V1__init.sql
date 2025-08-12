@@ -1,6 +1,3 @@
-DROP TABLE IF EXISTS posts;
-DROP TABLE IF EXISTS users;
-
 -- user 테이블
 CREATE TABLE users
 (
