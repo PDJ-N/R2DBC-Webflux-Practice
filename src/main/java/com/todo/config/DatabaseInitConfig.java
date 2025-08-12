@@ -11,7 +11,6 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
-import reactor.core.publisher.Mono;
 
 @Configuration
 @RequiredArgsConstructor
@@ -26,9 +25,12 @@ public class DatabaseInitConfig {
     @Order(2)
     public ApplicationRunner databaseInit() {
         return args -> {
-            userRepository.save(User.toEntity(new UserCreateRequest("test", "test", "홍길동", "hong@example.com"))).subscribe();
-            postRepository.save(Post.toEntity(1L, new PostCreateRequest("제목1", "내용1"))).subscribe();
-            postRepository.save(Post.toEntity(1L, new PostCreateRequest("제목2", "내용2"))).subscribe();
+            userRepository.save(User.toEntity(new UserCreateRequest("test", "test", "홍길동", "hong@example.com"))).subscribe(
+                    saved -> {
+                        postRepository.save(Post.toEntity(saved.getId(), new PostCreateRequest("제목1", "내용1"))).subscribe();
+                        postRepository.save(Post.toEntity(saved.getId(), new PostCreateRequest("제목2", "내용2"))).subscribe();
+                    }
+            );
         };
     }
 }
