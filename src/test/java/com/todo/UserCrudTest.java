@@ -49,7 +49,7 @@ public class UserCrudTest {
 
         // 2. 사용자 전체 조회
         webTestClient.get()
-                .uri("/users")
+                .uri("/api/users")
                 .exchange()
                 .expectStatus().isOk()
                 .expectBodyList(User.class)
@@ -58,7 +58,7 @@ public class UserCrudTest {
 
         // 3. 이메일로 사용자 조회
         webTestClient.get()
-                .uri("/users/hong@example.com")
+                .uri("/api/users/hong@example.com")
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(User.class)

@@ -37,7 +37,8 @@ public class SecurityConfig {
                         "/swagger-ui.html",
                         "/webjars/swagger-ui/**"
                         ).permitAll()
-                        .pathMatchers("/api/auth/login", "/users/**", "/posts/**").permitAll()
+                        .pathMatchers(("/api/gemini/**")).permitAll()
+                        .pathMatchers("/api/auth/login", "/api/users/**", "/api/posts/**").permitAll()
                         .anyExchange().authenticated()
                 )
                 .securityContextRepository(NoOpServerSecurityContextRepository.getInstance())

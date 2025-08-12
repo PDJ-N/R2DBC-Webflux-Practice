@@ -28,7 +28,7 @@ public class AuthTest {
 
         UserLoginRequest loginRequest = new UserLoginRequest(username, password);
 
-        webTestClient.post().uri("/users")
+        webTestClient.post().uri("/api/users")
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(Mono.just(new UserCreateRequest(username, password, "테스트", "example@example.com")), UserCreateRequest.class)
                 .exchange()

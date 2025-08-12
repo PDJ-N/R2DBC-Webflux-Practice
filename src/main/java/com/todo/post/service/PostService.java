@@ -13,6 +13,7 @@ import org.springframework.data.relational.core.query.Criteria;
 import org.springframework.data.relational.core.query.Query;
 import org.springframework.data.relational.core.query.Update;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -26,18 +27,22 @@ public class PostService {
     private final PostRepository postRepository;
     private final R2dbcEntityTemplate template;
 
+    @Transactional
     public Mono<Post> create(Long userId, PostCreateRequest postCreateRequest) {
         return postRepository.save(Post.toEntity(userId, postCreateRequest));
     }
 
+    @Transactional(readOnly = true)
     public Flux<Post> readAll() {
         return postRepository.findAll();
     }
 
+    @Transactional(readOnly = true)
     public Mono<Post> readByPostId(Long postId) {
         return postRepository.findById(postId);
     }
 
+    @Transactional(readOnly = true)
     public Mono<UserWithPostsResponse> readByUserId(Long userId) {
         Mono<User> userMono = userRepository.findById(userId);
         Mono<List<Post>> postsMono = postRepository.findByUserId(userId).collectList();
@@ -46,10 +51,12 @@ public class PostService {
                 .map(tuple -> new UserWithPostsResponse(tuple.getT1(), tuple.getT2()));
     }
 
-    public Flux<Post> readAll(Long userId) {
+    @Transactional(readOnly = true)
+    public Flux<Post> readAllPostsByUserId(Long userId) {
         return postRepository.findAllByUserId(userId);
     }
 
+    @Transactional
     public Mono<Long> updateByTemplate(Long postId, PostUpdateRequest request) {
         Update update = Update
                 .update("title", request.title() == null ? "제목이 없습니다" : request.title())
@@ -61,6 +68,7 @@ public class PostService {
         );
     }
 
+    @Transactional
     public Mono<Post> updateByRepository(Long postId, PostUpdateRequest request) {
         return postRepository.findById(postId).flatMap(post -> {
             post.setTitle(request.title() == null ? "제목이 없습니다" : request.title());
@@ -69,10 +77,12 @@ public class PostService {
         });
     }
 
+    @Transactional
     public Mono<Void> deleteByPostId(Long postId) {
         return postRepository.deleteById(postId);
     }
 
+    @Transactional
     public Mono<Void> deleteByUserId(Long userId) {
         return postRepository.deleteByUserId(userId);
     }

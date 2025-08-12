@@ -14,6 +14,7 @@ import org.springframework.data.relational.core.query.Query;
 import org.springframework.data.relational.core.query.Update;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -29,6 +30,7 @@ public class UserService {
     /**
      * 사용자 생성을 위한 메소드
      */
+    @Transactional
     public Mono<User> create(UserCreateRequest user) {
         User entity = User.toEntity(user);
         entity.setPassword(passwordEncoder.encode(entity.getPassword()));
@@ -40,6 +42,7 @@ public class UserService {
      *
      * @param id 조회할 사용자의 PK
      */
+    @Transactional(readOnly = true)
     public Mono<User> read(Long id) {
         return userRepository.findById(id)
                 .switchIfEmpty(
@@ -53,6 +56,7 @@ public class UserService {
     /**
      * 모든 사용자를 조회하기 위한 메소드
      */
+    @Transactional(readOnly = true)
     public Flux<User> readAll() {
         return userRepository.findAll()
                 .doOnComplete(() -> log.debug("사용자 조회 완료"));
@@ -61,6 +65,7 @@ public class UserService {
     /**
      * 이메일로 사용자를 조회하기 위한 메소드
      */
+    @Transactional(readOnly = true)
     public Mono<User> getUserByEmail(String email) {
         return userRepository.findByEmail(email).switchIfEmpty(
                 Mono.error(new CustomException(
@@ -75,6 +80,7 @@ public class UserService {
      * - Query와 Update 객체를 조합하여 특정 조건에 맞는 데이터만 부분적으로 업데이트할 수 있다.
      * - 이 방법은 엔티티 객체 전체를 불러와 수정하는 대신, 필요한 필드만 효율적으로 업데이트할 수 있다.
      * */
+    @Transactional
     public Mono<Long> updateUsingTemplate(Long id, UserUpdateRequest request) {
         // 사용해 사용자의 존재 여부를 확인합니다.
         return userRepository.existsById(id)
@@ -108,6 +114,7 @@ public class UserService {
      * - Spring MVC의 더티 채킹 비슷하게 하는 방법이다(코드가 비슷하지 내부 동작이 비슷한 건 아니다)
      * - 엔티티를 조회한 다음 수정한 다음에 PK 값에 의존하여 update하는 방법이다.
      * */
+    @Transactional
     public Mono<User> updateUsingRepository(Long id, UserUpdateRequest request) {
         return userRepository.findById(id)
                 .switchIfEmpty(Mono.error(new CustomException(
@@ -124,6 +131,7 @@ public class UserService {
     /**
      * ID로 사용자를 삭제하기 위한 메소드
      */
+    @Transactional
     public Mono<Void> deleteUsingRepository(Long id) {
         return userRepository.findById(id)
                 .switchIfEmpty(Mono.error(new CustomException(
@@ -138,6 +146,7 @@ public class UserService {
      * - 특정 필드 값을 기준으로 여러 데이터를 한 번에 삭제해야 할 때 유용하다.
      * - 하지만 이번에는 여러 값을 삭제하는 것이 아닌 예시 용으로 단건 삭제만 구현했다.
      * */
+    @Transactional
     public Mono<Long> deleteUsingTemplate(Long id) {
         return template.delete(
                 Query.query(Criteria.where("id").is(String.valueOf(id))),
