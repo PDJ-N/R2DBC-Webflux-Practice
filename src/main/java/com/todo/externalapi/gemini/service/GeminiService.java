@@ -6,7 +6,6 @@ import com.todo.externalapi.gemini.dto.ChatRequest;
 import com.todo.externalapi.gemini.dto.ChatResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -16,13 +15,9 @@ import reactor.core.publisher.Mono;
 public class GeminiService {
 
     private final WebClient geminiWebClient;
-    private final String apiUrl;
-    private final String geminiApiKey;
 
-    public GeminiService(@Qualifier("geminiWebClient") WebClient geminiWebClient, @Value("${gemini.api.url}") String apiUrl, @Value("${gemini.api.key}") String geminiApiKey) {
+    public GeminiService(@Qualifier("geminiWebClient") WebClient geminiWebClient) {
         this.geminiWebClient = geminiWebClient;
-        this.apiUrl = apiUrl;
-        this.geminiApiKey = geminiApiKey;
     }
 
     public Mono<String> getContents(String message) {
