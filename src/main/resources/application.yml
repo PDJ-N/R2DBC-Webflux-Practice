@@ -30,7 +30,10 @@ springdoc:
   cache:
     disabled: true
 
-
+gemini:
+  api:
+    url: [Gemini API 요청 URL]
+    key: [Gemini API Key]
 
 jwt:
   secret-key: dGhpcy1pcy1hLXNlY3JldC1rZXktZm9yLWp3dC10b2tlbi1hbmQtd2ViZmx1eA==
