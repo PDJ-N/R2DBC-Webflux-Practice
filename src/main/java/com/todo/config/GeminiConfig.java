@@ -9,7 +9,7 @@ public class GeminiConfig {
 
     @Bean
     public WebClient geminiWebClient(WebClient.Builder webClientBuilder) {
-        return webClientBuilder.baseUrl("https://api.gemini.com")
+        return webClientBuilder
                 .build();
     }
 }
