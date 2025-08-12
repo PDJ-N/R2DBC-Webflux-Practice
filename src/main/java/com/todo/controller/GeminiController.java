@@ -1,5 +1,7 @@
 package com.todo.controller;
 
+import com.todo.exception.CustomException;
+import com.todo.exception.dto.ErrorMessage;
 import com.todo.externalapi.gemini.dto.FreeChatRequest;
 import com.todo.externalapi.gemini.service.GeminiService;
 import lombok.RequiredArgsConstructor;
@@ -19,19 +21,11 @@ public class GeminiController {
 
     @GetMapping("/test")
     public Mono<?> gemini() {
-        try {
-            return geminiService.getContents("안녕! 너는 누구야?");
-        } catch (HttpClientErrorException e) {
-            return Mono.error(e);
-        }
+        return geminiService.getContents("안녕! 너는 누구야?");
     }
 
     @GetMapping("/free-chat")
-    public Mono<?> free(@RequestBody FreeChatRequest request){
-        try {
-            return geminiService.getContents(request.message());
-        }catch (HttpClientErrorException e){
-            return Mono.error(e);
-        }
+    public Mono<?> free(@RequestBody FreeChatRequest request) {
+        return geminiService.getContents(request.message());
     }
 }
