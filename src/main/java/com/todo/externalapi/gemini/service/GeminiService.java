@@ -30,59 +30,14 @@ public class GeminiService {
         return geminiWebClient.post()
                 .body(Mono.just(request), ChatRequest.class)
                 .retrieve()
-                .onStatus(HttpStatusCode::is5xxServerError, resp ->
-                        resp.bodyToMono(String.class)
-                                .defaultIfEmpty("")
-                                .flatMap(body -> Mono.error(new CustomException(
-                                        ErrorMessage.GEMINI_INTERNAL_SERVER_ERROR,
-                                        "Gemini API 호출 실패: HTTP " + resp.statusCode() + " body=" + body))
-                                )
-                )
-                .onStatus(HttpStatusCode::is4xxClientError, resp ->
-                        resp.bodyToMono(String.class)
-                                .defaultIfEmpty("")
-                                .flatMap(body -> Mono.error(new CustomException(
-                                        ErrorMessage.GEMINI_BAD_REQUEST,
-                                        "Gemini API 호출 실패: HTTP " + resp.statusCode() + " body=" + body))
-                                )
-                )
+                .onStatus(HttpStatusCode::is5xxServerError, GeminiErrorHandler::handle5xxError)
+                .onStatus(HttpStatusCode::is4xxClientError, GeminiErrorHandler::handle4xxError)
                 .bodyToMono(ChatResponse.class)
-                .flatMap(this::validateResponse)
+                .flatMap(GeminiResponseValidator::validateResponse)
                 .doOnError(error -> log.error("제미나이에 요청을 보내는데 오류가 발생했습니다. {}", error.getMessage()))
                 .onErrorMap(error -> {
                     if (error instanceof CustomException) return error;
                     return new CustomException(ErrorMessage.GEMINI_INTERNAL_SERVER_ERROR, error.getMessage());
                 });
-    }
-
-    private Mono<String> validateResponse(ChatResponse response) {
-        if (isCandidateEmpty(response)) {
-            return Mono.error(new CustomException(
-                    ErrorMessage.GEMINI_INTERNAL_SERVER_ERROR,
-                    "Gemini 응답에 candidates가 없습니다.")
-            );
-        }
-        var candidate = response.getCandidates().get(0);
-        if (isContentEmpty(candidate)) {
-            return Mono.error(new CustomException(
-                    ErrorMessage.GEMINI_INTERNAL_SERVER_ERROR,
-                    "Gemini 응답에 parts가 없습니다.")
-            );
-        }
-        return Mono.just(candidate.getContent().getParts().get(0).getText());
-    }
-
-    /**
-     * 응답으로 받아온 ChatResponse의 Candidate가 비어있는지 확인하는 메소드
-     */
-    private boolean isCandidateEmpty(ChatResponse response) {
-        return response == null || response.getCandidates() == null || response.getCandidates().isEmpty();
-    }
-
-    /**
-     * 응답으로 받아온 Candidate의 Content가 비어있는지 확인하는 메소드.
-     */
-    private boolean isContentEmpty(ChatResponse.Candidate candidate) {
-        return candidate.getContent() == null || candidate.getContent().getParts() == null || candidate.getContent().getParts().isEmpty();
     }
 }
