@@ -11,6 +11,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+/**
+ * 제미나이 프롬포트에 요청을 보내기 위한 서비스 클래스.
+ *
+ * @see GeminiErrorHandler          제미나이에게 에러 응답이 왔을 때 처리해주는 핸들러
+ * @see GeminiResponseValidator     제미나이의 응답이 올바른지 검증해주는 클래스
+ * @see ChatRequest                 제미나이에 요청을 보내기 위한 DTO
+ * @see ChatResponse                제미나이에 요청을 보내고 받아온 DTO
+ *
+ * @author duskafka
+ * */
 @Slf4j
 @Service
 public class GeminiService {
@@ -21,8 +31,17 @@ public class GeminiService {
         this.geminiWebClient = geminiWebClient;
     }
 
+    /**
+     * 제미나이에게 요청을 보내기 위한 요청 메소드.
+     *
+     * @implSpec {@code Mono<String>}을 사용하여 논블로킹으로 요청을 보낼 수 있도록 하였다.
+     * @implNote {@code ChatRequest} 클래스의 모양(필드 구성 등)은 구글의 변경으로 인해 변경해야 할 수도 있음.
+     *
+     * @param message 사용자가 프롬포트에 보내달라고 요청한 문자열
+     *
+     * @return 제미나이에게서 받아온 답변
+     * */
     public Mono<String> getContents(String message) {
-
         // ChatRequest 객체 생성
         ChatRequest request = new ChatRequest(message);
 

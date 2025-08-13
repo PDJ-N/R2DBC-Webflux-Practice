@@ -5,6 +5,9 @@ import lombok.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 제미나이에게 요청을 보내기 위한 DTO
+ * */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -19,13 +22,15 @@ public class ChatRequest {
         private Parts parts;
     }
 
-    @Getter @Setter
+    @Getter
+    @Setter
     public static class Parts {
         private String text;
 
     }
 
-    @Getter @Setter
+    @Getter
+    @Setter
     public static class GenerationConfig {
         private int candidate_count;
         private int max_output_tokens;
@@ -33,6 +38,9 @@ public class ChatRequest {
 
     }
 
+    /**
+     * 문자열을 받아서 ChatRequest 객체를 생성한다.
+     * */
     public ChatRequest(String prompt) {
         this.contents = new ArrayList<>();
         Content content = new Content();
