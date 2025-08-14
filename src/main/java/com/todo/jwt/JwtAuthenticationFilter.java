@@ -32,42 +32,63 @@ public class JwtAuthenticationFilter implements WebFilter {
         if (token != null && tokenProvider.validateToken(token)) {
             // 토큰이 유효하면 인증 정보 생성
             String username = tokenProvider.getUsernameFromToken(token);
+            List<GrantedAuthority> authorities = getAuthorities(token);
+            Authentication authentication = generateAuthentication(username, authorities);
 
-            List<String> roles = tokenProvider.getRolesFromToken(token); // 1. roles 클레임 추출
-            if(roles == null) roles = List.of();
-
-            List<GrantedAuthority> authorities = roles.stream()
-                    .map(String::trim)
-                    .filter(s -> !s.isEmpty())
-                    .map(SimpleGrantedAuthority::new)
-                    .collect(Collectors.toList());
-
-            UserDetails userDetails = new User(
-                    username, // username
-                    "",       // password (JWT 인증에서는 필요 없으므로 빈 문자열)
-                    authorities // authorities
-            );
-
-            Authentication authentication = new UsernamePasswordAuthenticationToken(
-                    userDetails,
-                    null,
-                    authorities
-            );
             log.debug("JWT authentication for user: {}, authorities: {}", username, authorities);
 
             // SecurityContext에 인증 정보 저장
             return chain.filter(exchange).contextWrite(
-                ReactiveSecurityContextHolder.withAuthentication(authentication));
+                    ReactiveSecurityContextHolder.withAuthentication(authentication)
+            );
         }
         return chain.filter(exchange);
     }
-    
-    // HTTP 요청 헤더에서 JWT 토큰 추출
+
+    /**
+     * HTTP 요청 헤더에서 JWT 토큰 추출해주는 메소드.
+     * */
     private String resolveToken(ServerHttpRequest request) {
         String bearerToken = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
-        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
-            return bearerToken.substring(7);
+        if (StringUtils.hasText(bearerToken) && StringUtils.startsWithIgnoreCase(bearerToken, "Bearer ")) {
+            return bearerToken.substring(7).trim();
         }
         return null;
+    }
+
+    /**
+     * JWT 토큰의 roles 항목에서 권한들을 가져오는 메소드.
+     *
+     * @param token 권한을 가져올 JWT 토큰
+     * */
+    private List<GrantedAuthority> getAuthorities(String token) {
+        List<String> roles = tokenProvider.getRolesFromToken(token);
+        if (roles == null) roles = List.of();
+
+        return roles.stream()
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .map(SimpleGrantedAuthority::new)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Authentication을 만드는 메소드.
+     *
+     * @param username      JWT 토큰에 저장된 subject
+     * @param authorities   JWT 토큰에 저장된 roles
+     * */
+    private Authentication generateAuthentication(String username, List<GrantedAuthority> authorities) {
+        UserDetails userDetails = new User(
+                username,   // username
+                "",         // password (JWT 인증에서는 필요 없으므로 빈 문자열)
+                authorities // authorities
+        );
+
+        return new UsernamePasswordAuthenticationToken(
+                userDetails,
+                null,
+                authorities
+        );
     }
 }

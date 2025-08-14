@@ -4,6 +4,9 @@ import lombok.*;
 
 import java.util.List;
 
+/**
+ * 제미나이에게 응답을 받아올 DTO
+ * */
 @Data
 @Builder
 @AllArgsConstructor
@@ -23,7 +26,8 @@ public class ChatResponse {
 
     }
 
-    @Getter @Setter
+    @Getter
+    @Setter
     @ToString
     public static class Content {
         private List<Parts> parts;
@@ -31,20 +35,23 @@ public class ChatResponse {
 
     }
 
-    @Getter @Setter
+    @Getter
+    @Setter
     @ToString
     public static class Parts {
         private String text;
 
     }
 
-    @Getter @Setter
+    @Getter
+    @Setter
     public static class SafetyRating {
         private String category;
         private String probability;
     }
 
-    @Getter @Setter
+    @Getter
+    @Setter
     public static class PromptFeedback {
         private List<SafetyRating> safetyRatings;
 

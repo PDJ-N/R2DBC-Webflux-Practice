@@ -7,8 +7,20 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import reactor.core.publisher.Mono;
 
+/**
+ * 제미나이에게서 문제가 발생했다는 응답 코드를 받았을 때 이를 처리하기 위한 메소드를 가진 클래스
+ *
+ * @author duskafka
+ * @see GeminiService
+ * */
 @Component
 public class GeminiErrorHandler {
+    /**
+     * 제미나이에 요청을 보내고 5xx 응답이 왔을 때 대응하기 위한 핸들러 메소드.
+     *
+     * @param response 응답 코드를 가지고 있는 DTO
+     * @return Mono.error 객체를 반환해 GlobalExceptionHandler에서 처리할 수 있도록 만든다.
+     * */
     protected static Mono<? extends Throwable> handle5xxError(ClientResponse response) {
         return response.bodyToMono(String.class)
                 .defaultIfEmpty("")
@@ -18,6 +30,12 @@ public class GeminiErrorHandler {
                 );
     }
 
+    /**
+     * 제미나이에 요청을 보내고 4xx 응답이 왔을 때 대응하기 위한 핸들러 메소드
+     *
+     * @param response 응답 코드를 가지고 있는 DTO
+     * @return Mono.error 객체를 반환해 GlobalExceptionHandler에서 처리할 수 있도록 만든다.
+     * */
     protected static Mono<? extends Throwable> handle4xxError(ClientResponse response) {
         HttpStatusCode httpStatusCode = response.statusCode();
 
