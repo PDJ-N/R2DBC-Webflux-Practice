@@ -28,7 +28,12 @@ public class FunctionHandlerAndRouterFunctionTest {
 
     @Test
     void testGoodbyeWithName() {
-        client.get().uri("/goodbye?name=홍길동")
+        client.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/goodbye")
+                        .queryParam("name", "홍길동")
+                        .build()
+                )
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(String.class)
