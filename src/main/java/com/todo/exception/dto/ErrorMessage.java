@@ -27,6 +27,7 @@ public enum ErrorMessage {
 
     // IMAGE
     NOT_FOUND_IMAGE(HttpStatus.NOT_FOUND, "요청한 이미지를 찾지 못했습니다."),
+    INVALID_IMAGE_PATH(HttpStatus.CONFLICT, "유효한 이미지 요청 경로가 아닙니다.")
     ;
 
     private final HttpStatus status;
