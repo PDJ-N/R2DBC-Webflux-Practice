@@ -23,6 +23,10 @@ public enum ErrorMessage {
     GEMINI_UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "Gemini에 인증이 실패했습니다."),
     GEMINI_BAD_REQUEST(HttpStatus.BAD_REQUEST, "Gemini에게 유효한 요청이 아닙니다"),
     GEMINI_TOO_MANY_REQUESTS(HttpStatus.TOO_MANY_REQUESTS, "Gemini에 너무 많은 요청이 들어갔습니다. 조금 대기해주세요."),
+
+
+    // IMAGE
+    NOT_FOUND_IMAGE(HttpStatus.NOT_FOUND, "요청한 이미지를 찾지 못했습니다."),
     ;
 
     private final HttpStatus status;
