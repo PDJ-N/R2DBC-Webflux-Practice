@@ -12,7 +12,6 @@ import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
 import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,7 +25,7 @@ import java.time.Duration;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/image")
+@RequestMapping("/api/images")
 @RequiredArgsConstructor
 public class ImageSendController {
 
