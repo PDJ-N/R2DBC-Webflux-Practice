@@ -7,6 +7,7 @@ import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
@@ -16,6 +17,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Duration;
 
 @RestController
 @RequestMapping("/api/image")
@@ -32,10 +34,20 @@ public class ImageSendController {
     }
 
     /**
-     * DataBuffer를 사용해서 스트림으로 데이터를 전송
+     * /api/image/파일명 으로 URL을 받아서 이미지를 가져올 수 있도록 하는 REST API
+     *
+     * @implNote 프로덕션 환경에서는 파일명이 아니라 데이터베이스에 조회 가능한 이미지의 ID 값을 받아서 조회해서 응답해야 한다. 프로덕션 환경이 아니고 간단히 구현하기 위해 이렇게 한 것.
+     * */
+    @GetMapping(value = "/{image}", produces = MediaType.IMAGE_PNG_VALUE)
+    public Mono<Resource> getImage(@PathVariable String image) {
+        return Mono.just(new ClassPathResource("/img/" + image));
+    }
+
+    /**
+     * DataBuffer를 사용해서 스트림으로 데이터를 전송. 이미지 폴더에 있는 이미지를 모두 옥텟 스트림으로 보낸다.
      *
      * @implNote 프론트(클라이언트)에서 옥텟 스트리밍을 파싱할 수 있는 기능을 갖춰야한다.
-     * */
+     */
     @GetMapping(value = "/stream", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public Flux<DataBuffer> streamImage() throws IOException {
         return Flux.fromStream(Files.walk(imageDir))
@@ -45,5 +57,21 @@ public class ImageSendController {
                         new DefaultDataBufferFactory(),
                         1024
                 ));
+    }
+
+
+    /**
+     * 이런식으로 여러 개의 REST API URL을 보내면 클라이언트에서 이것으로 다시 요청을 보내도록 하는 것이다.
+     * @implNote 프론트(클라이언트)에서 SSE를 받는 로직을 따로 구현해야 한다.
+     * */
+    @GetMapping(value = "/flux", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<String> getImageUrls() {
+        // 실제로는 데이터베이스나 파일 시스템에서 이미지 목록을 가져와서
+        // Flux로 변환하여 보낼 수 있습니다.
+        return Flux.just(
+                "/api/images/webflux.png",
+                "/api/images/docker.png",
+                "/api/images/swagger.png"
+        ).delayElements(Duration.ofSeconds(1)); // 예시를 위해 1초 간격으로 보냄
     }
 }
