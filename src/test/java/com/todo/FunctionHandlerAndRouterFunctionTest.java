@@ -3,10 +3,8 @@ package com.todo;
 import com.todo.functionendpoint.MyFunctionHandler;
 import com.todo.functionendpoint.MyRouterFunction;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
-@SpringBootTest
 public class FunctionHandlerAndRouterFunctionTest {
     // MyHandler와 MyRouter 인스턴스를 생성
     private final MyFunctionHandler myHandler = new MyFunctionHandler();
