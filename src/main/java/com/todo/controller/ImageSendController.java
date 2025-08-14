@@ -11,6 +11,7 @@ import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
 import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,6 +20,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.time.Duration;
 
 @Slf4j
@@ -51,13 +53,22 @@ public class ImageSendController {
     }
 
     /**
-     * /api/image/파일명 으로 URL을 받아서 이미지를 가져올 수 있도록 하는 REST API
+     * /api/image/파일명 으로 URL을 받아서 이미지를 가져올 수 있도록 하는 REST API. 요청할 때 .png를 붙여야 한다. 안 그러면 오류남.
      *
      * @implNote 프로덕션 환경에서는 파일명이 아니라 데이터베이스에 조회 가능한 이미지의 ID 값을 받아서 조회해서 응답해야 한다. 프로덕션 환경이 아니고 간단히 구현하기 위해 이렇게 한 것.
      */
-    @GetMapping(value = "/{image}", produces = MediaType.IMAGE_PNG_VALUE)
+    @GetMapping(value = "/{image:.+\\.png}", produces = MediaType.IMAGE_PNG_VALUE)
     public Mono<Resource> getImage(@PathVariable String image) {
-        String imagePath = locationPattern + image + ".png";
+        String fileName = Paths.get(image).getFileName().toString();
+        log.info(fileName);
+
+        if (fileName.contains("..") || fileName.contains("/") || fileName.contains("\\")) {
+            return Mono.error(new CustomException(
+                    ErrorMessage.INVALID_IMAGE_PATH,
+                    "유효한 이미지 요청이 아닙니다.")
+            );
+        }
+        String imagePath = locationPattern + fileName;
 
         // resourceLoader.getResource()는 존재하지 않는 파일도 Resource 객체를 반환하므로,
         // .exists()로 실제로 파일이 있는지 확인하는 것이 안전합니다.
