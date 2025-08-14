@@ -2,6 +2,7 @@ package com.todo.controller;
 
 import com.todo.exception.CustomException;
 import com.todo.exception.dto.ErrorMessage;
+import com.todo.image.ImagePathValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
@@ -31,6 +32,7 @@ public class ImageSendController {
 
     private final ResourceLoader resourceLoader;
     private final ResourcePatternResolver resourcePatternResolver;
+    private final ImagePathValidator imagePathValidator;
     private final String locationPattern = "classpath:img/";
 
     /**
@@ -60,23 +62,22 @@ public class ImageSendController {
     @GetMapping(value = "/{image:.+\\.png}", produces = MediaType.IMAGE_PNG_VALUE)
     public Mono<Resource> getImage(@PathVariable String image) {
         String fileName = Paths.get(image).getFileName().toString();
-        log.info(fileName);
 
-        if (fileName.contains("..") || fileName.contains("/") || fileName.contains("\\")) {
+        // 유효하지 않은 요청이라면 오류를 발생시킴
+        if (!imagePathValidator.isValidPath(fileName)) {
             return Mono.error(new CustomException(
                     ErrorMessage.INVALID_IMAGE_PATH,
                     "유효한 이미지 요청이 아닙니다.")
             );
         }
-        String imagePath = locationPattern + fileName;
 
         // resourceLoader.getResource()는 존재하지 않는 파일도 Resource 객체를 반환하므로,
         // .exists()로 실제로 파일이 있는지 확인하는 것이 안전합니다.
-        Resource imageResource = resourceLoader.getResource(imagePath);
+        Resource imageResource = resourceLoader.getResource(locationPattern + image);
 
         if (!imageResource.exists()) {
             // 파일을 찾지 못했을 경우 404 Not Found 에러를 반환
-            return Mono.error(new CustomException(ErrorMessage.NOT_FOUND_IMAGE, "Image not found: " + imagePath));
+            return Mono.error(new CustomException(ErrorMessage.NOT_FOUND_IMAGE, "Image not found: " + fileName));
         }
 
         return Mono.just(imageResource);
