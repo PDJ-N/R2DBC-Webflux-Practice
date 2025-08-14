@@ -5,8 +5,6 @@ import com.todo.functionendpoint.MyRouterFunction;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.reactive.server.WebTestClient;
-import org.springframework.web.reactive.function.server.RouterFunctions;
-import org.springframework.web.server.WebHandler;
 
 @SpringBootTest
 public class FunctionHandlerAndRouterFunctionTest {
@@ -15,8 +13,8 @@ public class FunctionHandlerAndRouterFunctionTest {
     private final MyRouterFunction myRouter = new MyRouterFunction();
 
     // WebTestClient를 설정. RouterFunction을 HttpHandler로 변환하여 연결
-    private final WebTestClient client = WebTestClient.bindToWebHandler(
-            (WebHandler) RouterFunctions.toHttpHandler(myRouter.route(myHandler))
+    private final WebTestClient client = WebTestClient.bindToRouterFunction(
+            myRouter.route(myHandler)
     ).build();
 
     @Test
