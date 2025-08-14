@@ -1,10 +1,15 @@
 package com.todo.controller;
 
-import org.springframework.core.io.ClassPathResource;
+import com.todo.exception.CustomException;
+import com.todo.exception.dto.ErrorMessage;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
+import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,33 +19,59 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/image")
+@RequiredArgsConstructor
 public class ImageSendController {
 
     private final Path imageDir = Paths.get("src/main/resources/img");
+    private final ResourceLoader resourceLoader;
+    private final ResourcePatternResolver resourcePatternResolver;
+    private final String locationPattern = "classpath:img/";
 
     /**
      * Resource를 사용한 정적 이미지 전송
      */
     @GetMapping(produces = MediaType.IMAGE_PNG_VALUE)
     public Mono<Resource> getImage() {
-        return Mono.just(new ClassPathResource("/img/webflux.png"));
+        String imagePath = locationPattern + "webflux.png";
+
+        // resourceLoader.getResource()는 존재하지 않는 파일도 Resource 객체를 반환하므로,
+        // .exists()로 실제로 파일이 있는지 확인하는 것이 안전합니다.
+        Resource imageResource = resourceLoader.getResource(imagePath);
+
+        if (!imageResource.exists()) {
+            // 파일을 찾지 못했을 경우 404 Not Found 에러를 반환
+            return Mono.error(new CustomException(ErrorMessage.NOT_FOUND_IMAGE, "Image not found: " + imagePath));
+        }
+
+        return Mono.just(imageResource);
     }
 
     /**
      * /api/image/파일명 으로 URL을 받아서 이미지를 가져올 수 있도록 하는 REST API
      *
      * @implNote 프로덕션 환경에서는 파일명이 아니라 데이터베이스에 조회 가능한 이미지의 ID 값을 받아서 조회해서 응답해야 한다. 프로덕션 환경이 아니고 간단히 구현하기 위해 이렇게 한 것.
-     * */
+     */
     @GetMapping(value = "/{image}", produces = MediaType.IMAGE_PNG_VALUE)
     public Mono<Resource> getImage(@PathVariable String image) {
-        return Mono.just(new ClassPathResource("/img/" + image));
+        String imagePath = locationPattern + image + ".png";
+
+        // resourceLoader.getResource()는 존재하지 않는 파일도 Resource 객체를 반환하므로,
+        // .exists()로 실제로 파일이 있는지 확인하는 것이 안전합니다.
+        Resource imageResource = resourceLoader.getResource(imagePath);
+
+        if (!imageResource.exists()) {
+            // 파일을 찾지 못했을 경우 404 Not Found 에러를 반환
+            return Mono.error(new CustomException(ErrorMessage.NOT_FOUND_IMAGE, "Image not found: " + imagePath));
+        }
+
+        return Mono.just(imageResource);
     }
 
     /**
@@ -50,20 +81,27 @@ public class ImageSendController {
      */
     @GetMapping(value = "/stream", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public Flux<DataBuffer> streamImage() throws IOException {
-        return Flux.fromStream(Files.walk(imageDir))
-                .filter(path -> path.toString().endsWith(".png"))
-                .flatMap(path -> DataBufferUtils.read(
-                        path,
-                        new DefaultDataBufferFactory(),
-                        1024
-                ));
+        // ResourceLoader를 ResourcePatternResolver로 캐스팅하여 와일드카드를 지원하게 함
+        Resource[] resources = resourcePatternResolver.getResources(locationPattern);
+
+        // 찾은 모든 리소스를 Flux로 변환
+        return Flux.fromArray(resources)
+                .flatMap(resource -> {
+                    // 각 리소스를 DataBuffer 스트림으로 읽어옴
+                    return DataBufferUtils.read(
+                            resource,
+                            new DefaultDataBufferFactory(),
+                            1024
+                    );
+                });
     }
 
 
     /**
      * 이런식으로 여러 개의 REST API URL을 보내면 클라이언트에서 이것으로 다시 요청을 보내도록 하는 것이다.
+     *
      * @implNote 프론트(클라이언트)에서 SSE를 받는 로직을 따로 구현해야 한다.
-     * */
+     */
     @GetMapping(value = "/flux", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<String> getImageUrls() {
         // 실제로는 데이터베이스나 파일 시스템에서 이미지 목록을 가져와서
