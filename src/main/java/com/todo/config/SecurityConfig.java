@@ -4,6 +4,7 @@ import com.todo.jwt.JwtAuthenticationFilter;
 import com.todo.jwt.JwtTokenProvider;
 import com.todo.user.service.ReactiveUserDetailsServiceImpl;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.security.reactive.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
@@ -15,6 +16,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.context.NoOpServerSecurityContextRepository;
+import org.springframework.util.PathMatcher;
 
 @Configuration
 @EnableWebFluxSecurity
@@ -33,6 +35,8 @@ public class SecurityConfig {
                 .formLogin(ServerHttpSecurity.FormLoginSpec::disable)
                 // 인증에 따른 접근 가능 여부 설정
                 .authorizeExchange(exchanges -> exchanges
+                        // Spring Actuator 접근 URL 허용
+                        .pathMatchers("/actuator/**").permitAll()
                         // Swagger 접근에 필요한 URL
                         .pathMatchers(
                                 "/v3/api-docs/**",
