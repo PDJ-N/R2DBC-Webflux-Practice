@@ -40,7 +40,7 @@ public class ImageService {
             );
         }
 
-        Resource imageResource = resourceLoader.getResource(locationPattern + image);
+        Resource imageResource = resourceLoader.getResource(locationPattern + fileName);
 
         if (!imageResource.exists()) {
             // 파일을 찾지 못했을 경우 404 Not Found 에러를 반환
