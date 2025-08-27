@@ -57,7 +57,7 @@ public class SecurityConfig {
                                 "/api/auth/login",
                                 "/api/users/**",
                                 "/api/posts/**",
-                                "/api/image/**",
+                                "/api/images/**",
                                 "/api/gemini/**",
                                 "/api/hello",
                                 "/api/delayed-response"
