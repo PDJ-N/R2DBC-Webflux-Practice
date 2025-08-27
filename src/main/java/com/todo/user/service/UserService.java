@@ -155,7 +155,7 @@ public class UserService {
     @Transactional
     public Mono<Long> deleteUsingTemplate(Long id) {
         return template.delete(
-                        Query.query(Criteria.where("id").is(String.valueOf(id))),
+                        Query.query(Criteria.where("id").is(id)),
                         User.class
                 )
                 .flatMap(count -> {
