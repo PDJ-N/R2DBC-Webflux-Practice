@@ -52,7 +52,7 @@ public class ImageService {
     /**
      * 모든 이미지를 버퍼에 담아서 가져오는 메소드
      */
-    public Flux<DataBuffer> getAllImageByBuffer() throws IOException {
+    public Flux<DataBuffer> getAllImageByBuffer() {
         final Resource[] resources;
 
         // 이미지 리소스를 가져옴
