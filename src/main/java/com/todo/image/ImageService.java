@@ -28,7 +28,7 @@ public class ImageService {
      * 이미지명으로 이미지를 가져올 수 있는 메소드
      *
      * @param image 가져올 이미지의 파일명
-     * */
+     */
     public Mono<Resource> getImage(String image) {
         String fileName = Paths.get(image).getFileName().toString();
 
@@ -51,28 +51,40 @@ public class ImageService {
 
     /**
      * 모든 이미지를 버퍼에 담아서 가져오는 메소드
-     * */
+     */
     public Flux<DataBuffer> getAllImageByBuffer() throws IOException {
-        // ResourceLoader를 ResourcePatternResolver로 캐스팅하여 와일드카드를 지원하게 함
-        Resource[] resources = resourcePatternResolver.getResources(locationPattern);
+        final Resource[] resources;
 
-        // 찾은 모든 리소스를 Flux로 변환
+        // 이미지 리소스를 가져옴
+        try {
+            resources = resourcePatternResolver.getResources(locationPattern);
+        } catch (IOException e) {
+            return Flux.error(new CustomException(
+                    ErrorMessage.INTERNAL_SERVER_ERROR,
+                    "이미지 리소스 탐색 중 오류가 발생했습니다."
+            ));
+        }
+
+        // 이미지를 찾지 못했을 시 예외를 발생하도록 함
+        if (resources.length == 0) {
+            return Flux.error(new CustomException(
+                    ErrorMessage.NOT_FOUND_IMAGE,
+                    "이미지를 찾지 못했습니다."
+            ));
+        }
+
+        // 파일 단위 순차 전송으로 interleaving 방지
         return Flux.fromArray(resources)
-                .flatMap(resource -> {
-                    // 각 리소스를 DataBuffer 스트림으로 읽어옴
-                    return DataBufferUtils.read(
-                            resource,
-                            new DefaultDataBufferFactory(),
-                            1024
-                    );
-                });
+                .concatMap(resource ->
+                        DataBufferUtils.read(resource, new DefaultDataBufferFactory(), 1024)
+                );
     }
 
     /**
      * 애플리케이션에 저장된 이미지를 가져올 수 있는 REST API URL을 반환하는 메소드.
      *
      * @implNote 이미지가 세 개 밖에 없기 때문에 이대로 명시해둠
-     * */
+     */
     public Flux<String> getAllImagePath() {
         return Flux.just(
                 "/api/images/webflux.png",
