@@ -68,8 +68,8 @@ public class ImageSendController {
     public Flux<String> getImageUrls() {
         // 예시 데이터: 실제로는 DB 조회나 파일 시스템 접근을 통해 동적으로 URL을 생성할 수 있다.
         return imageService.getAllImagePath()
-                .limitRate(2)                     // 클라이언트가 한 번에 최대 2개의 데이터를 요청하도록 백프레셔 적용
-                .subscribeOn(Schedulers.boundedElastic());  // I/O 작업을 위한 별도 스레드에서 실행
+                .limitRate(2);             // 클라이언트가 한 번에 최대 2개의 데이터를 요청하도록 백프레셔 적용
+
     }
 
     /**
